@@ -15,6 +15,12 @@ long remaining = 0;
 int direction = 0;
 volatile byte ccw_interrupted = LOW;
 volatile byte cw_interrupted = LOW;
+#define INPUT_SIZE 100  // TODO: make this a reasonable value
+#define sep " "
+char input[INPUT_SIZE + 1];
+char code = '0';
+char c_number = '0';
+double number = 0.;
 
 void setup() {
   // initiate pins and write outputs to logic LOW
@@ -106,7 +112,7 @@ void homeStage() {
   digitalWrite(direction_pin, LOW);
 }
 
-void moveStage(float mm) {
+void moveStage(double mm) {
   long position_desired_steps = (long)(mm / 25.4 / inchsperstep);
   long steps = position_desired_steps - position_current;
   remaining = abs(steps);
@@ -125,14 +131,22 @@ void readEEPROM() {
 }
 
 void serialEvent() {
-  char code = Serial.read();
-  if (code == 'M') moveStage(Serial.parseFloat());
-  else if (code == 'H') homeStage();
-  else if (code == 'G') getStagePosition();
-  else if (code == 'T') tellStagePosition(Serial.parseFloat());
-  else if (code == 'S') EEPROMWritelong(0, position_current); // Saves the current position (in steps) to EEPROM
-  else if (code == 'Q') query(); // Reads and prints the EEPROM position (in mm)
-  else if (code == 'E') echo();
+  // read serial into input char array
+  byte size = Serial.readBytesUntil('\n', input, INPUT_SIZE);
+  input[size] = 0;
+  // parse input
+  char *code = strtok(input, sep);
+  char *c_number = strtok(0, sep);
+  // convert input
+  number = atof(c_number);
+  // do
+  if (*code == 'M') moveStage(number);
+  else if (*code == 'H') homeStage();
+  else if (*code == 'G') getStagePosition();
+  else if (*code == 'T') tellStagePosition(number);
+  else if (*code == 'S') EEPROMWritelong(0, position_current); // Saves the current position (in steps) to EEPROM
+  else if (*code == 'Q') query(); // Reads and prints the EEPROM position (in mm)
+  else if (*code == 'E') echo();
   else delay(100);
   Serial.flush();
 }
@@ -147,7 +161,7 @@ static inline int8_t sign(int val) {
   return 1;
 }
 
-void tellStagePosition(float mm) {
+void tellStagePosition(double mm) {
   position_current = (long)(mm / 25.4 / inchsperstep);
   EEPROMWritelong(0, position_current);
 }
