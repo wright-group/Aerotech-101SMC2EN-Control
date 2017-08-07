@@ -6,7 +6,7 @@ Circuit board and microcontroller firmware to control the Aerotech 101SMC2EN-HM 
 
 The revamped controller communicates with other devices over USB.
 
-The controller communicates at a baud rate of 9600.
+The controller communicates at a baud rate of 57600.
 All commands must be terminated with newline (ASCII 012).
 
 The command syntax is as follows:
