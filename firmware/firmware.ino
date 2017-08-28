@@ -107,9 +107,14 @@ void getStagePosition() {
 }
 
 void homeStage() {
+  if (digitalRead(limit_ccw) == LOW) {
+    ccw_interrupted = HIGH;
+  }
+  else {
   direction = -1;
   remaining = -1;
   digitalWrite(direction_pin, LOW);
+  }
 }
 
 void moveStage(double mm) {
