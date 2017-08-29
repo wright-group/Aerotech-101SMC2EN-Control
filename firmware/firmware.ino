@@ -17,9 +17,10 @@ volatile byte ccw_interrupted = LOW;
 volatile byte cw_interrupted = LOW;
 #define INPUT_SIZE 100  // TODO: make this a reasonable value
 #define sep " "
+byte isize;
 char input[INPUT_SIZE + 1];
-char code = '0';
-char c_number = '0';
+char *code;
+char *c_number;
 double number = 0.;
 
 void setup() {
@@ -70,12 +71,6 @@ void ccwInterrupt() {
 
 void cwInterrupt() {
   cw_interrupted = HIGH;
-}
-
-void echo() {
-  String string = Serial.readString();
-  string.trim();
-  Serial.println(string);
 }
 
 void EEPROMWritelong(long address, long value) {
@@ -137,11 +132,11 @@ void readEEPROM() {
 
 void serialEvent() {
   // read serial into input char array
-  byte size = Serial.readBytesUntil('\n', input, INPUT_SIZE);
-  input[size] = 0;
+  isize = Serial.readBytesUntil('\n', input, INPUT_SIZE);
+  input[isize] = 0;
   // parse input
-  char *code = strtok(input, sep);
-  char *c_number = strtok(0, sep);
+  code = strtok(input, sep);
+  c_number = strtok(0, sep);
   // convert input
   number = atof(c_number);
   // do
@@ -149,9 +144,8 @@ void serialEvent() {
   else if (*code == 'H') homeStage();
   else if (*code == 'G') getStagePosition();
   else if (*code == 'T') tellStagePosition(number);
-  else if (*code == 'S') EEPROMWritelong(0, position_current); // Saves the current position (in steps) to EEPROM
-  else if (*code == 'Q') query(); // Reads and prints the EEPROM position (in mm)
-  else if (*code == 'E') echo();
+  else if (*code == 'S') EEPROMWritelong(0, position_current);  // save
+  else if (*code == 'Q') query();
   else delay(100);
   Serial.flush();
 }
