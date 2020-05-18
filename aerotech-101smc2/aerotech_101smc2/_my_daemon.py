@@ -3,10 +3,10 @@ __all__ = ["Aerotech"]
 import asyncio
 from typing import Dict, Any, List
 
-from yaqd_core import Hardware
+from yaqd_core import ContinuousHardware
 
 
-class Aerotech(Hardware):
+class Aerotech(ContinuousHardware):
     _kind = "my-daemon"
     traits: List[str] = []
     defaults: Dict[str, Any] = {}
