@@ -13,7 +13,6 @@ The command syntax is as follows:
 
 | command         | behavior                                 |
 |-----------------|------------------------------------------|
-| E <some chars>  | echo                                     |
 | G               | get position                             |
 | H               | send home                                |
 | M <destination> | move to destination, in mm               |
