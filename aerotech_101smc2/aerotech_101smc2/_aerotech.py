@@ -7,7 +7,7 @@ from yaqd_core import ContinuousHardware
 
 
 class Aerotech(ContinuousHardware):
-    _kind = "my-daemon"
+    _kind = "Aerotech_101smc2"
     traits: List[str] = []
     defaults: Dict[str, Any] = {}
 
