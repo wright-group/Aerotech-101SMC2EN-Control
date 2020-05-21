@@ -7,7 +7,7 @@ from yaqd_core import ContinuousHardware, aserial
 
 
 class Aerotech(ContinuousHardware):
-    _kind = "Aerotech_101smc2"
+    _kind = "aerotech-101smc2"
     traits: List[str] = []
     defaults: Dict[str, Any] = {"baud_rate": 57600}
 
@@ -15,8 +15,8 @@ class Aerotech(ContinuousHardware):
         super().__init__(name, config, config_filepath)
         
         self._serial_port = aserial.ASerial(config["serial_port"], config["baud_rate"])
-    ...
-        # perfom other setup, possibly including reads and writes
+    
+        # perform other setup, possibly including reads and writes
 
     def _load_state(self, state):
         """Load an initial state from a dictionary (typically read from the state.toml file).
@@ -50,6 +50,7 @@ class Aerotech(ContinuousHardware):
 
     async def update_state(self):
         while True:
+            # Perform any updates to internal state
             self._serial_port.write(b"get_status")
             line = await self._serial_port.areadline()
             self._busy = line != b"ready"
