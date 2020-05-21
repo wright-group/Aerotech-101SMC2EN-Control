@@ -37,7 +37,7 @@ setup(
     description="Daemon for the Aerotech 101SMC2EN translation stage",
     entry_points={
         "console_scripts": [
-            "yaqd-my-daemon=aerotech_101smc2._my_daemon:Aerotech.main",
+            "yaqd-aerotech-101smc2=aerotech_101smc2._aerotech:Aerotech.main",
         ],
     },
     install_requires=requirements,

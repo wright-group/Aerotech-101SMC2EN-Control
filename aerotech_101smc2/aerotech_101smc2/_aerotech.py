@@ -3,18 +3,20 @@ __all__ = ["Aerotech"]
 import asyncio
 from typing import Dict, Any, List
 
-from yaqd_core import ContinuousHardware
+from yaqd_core import ContinuousHardware, aserial
 
 
 class Aerotech(ContinuousHardware):
-    _kind = "my-daemon"
+    _kind = "Aerotech_101smc2"
     traits: List[str] = []
-    defaults: Dict[str, Any] = {}
+    defaults: Dict[str, Any] = {"baud_rate": 57600}
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
-        # Perform any unique initialization
-
+        
+        self._serial_port = aserial.ASerial(config["serial_port"], config["baud_rate"])
+    ...
+        # perfom other setup, possibly including reads and writes
 
     def _load_state(self, state):
         """Load an initial state from a dictionary (typically read from the state.toml file).
@@ -36,21 +38,22 @@ class Aerotech(ContinuousHardware):
         state["value"] = self.value
         return state
 
-
-
-
     def _set_position(self, position):
         ...
 
+    def close(self):
+        self._serial_port.close()
+
+    def direct_serial_write(self, message):
+        self._busy = True
+        self._serial_port.write(message.encode())
 
     async def update_state(self):
-        """Continually monitor and update the current daemon state."""
-        # If there is no state to monitor continuously, delete this function
         while True:
-            # Perform any updates to internal state
-            self._busy = False
-            # There must be at least one `await` in this loop
-            # This one waits for something to trigger the "busy" state
-            # (Setting `self._busy = True)
-            # Otherwise, you can simply `await asyncio.sleep(0.01)`
+            self._serial_port.write(b"get_status")
+            line = await self._serial_port.areadline()
+            self._busy = line != b"ready"
+        if self._busy:
+            await asyncio.sleep(0.1)
+        else:
             await self._busy_sig.wait()
