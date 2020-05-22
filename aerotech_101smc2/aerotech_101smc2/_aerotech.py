@@ -54,7 +54,7 @@ class Aerotech(ContinuousHardware):
             self._serial_port.write(b"get_status")
             line = await self._serial_port.areadline()
             self._busy = line != b"ready"
-        if self._busy:
-            await asyncio.sleep(0.1)
-        else:
-            await self._busy_sig.wait()
+            if self._busy:
+                await asyncio.sleep(0.1)
+            else:
+                await self._busy_sig.wait()
