@@ -39,7 +39,7 @@ class Aerotech(ContinuousHardware):
         return state
 
     def _set_position(self, position):
-        ...
+        self._serial_port.write(f"M {position}\n".encode())
 
     def close(self):
         self._serial_port.close()
@@ -51,9 +51,9 @@ class Aerotech(ContinuousHardware):
     async def update_state(self):
         while True:
             # Perform any updates to internal state
-            self._serial_port.write(b"get_status")
+            self._serial_port.write(b"Q\n")
             line = await self._serial_port.areadline()
-            self._busy = line != b"ready"
+            self._busy = (line != b"R")
             if self._busy:
                 await asyncio.sleep(0.1)
             else:
