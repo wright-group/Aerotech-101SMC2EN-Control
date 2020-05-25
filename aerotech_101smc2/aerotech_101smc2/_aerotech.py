@@ -10,6 +10,7 @@ class Aerotech(ContinuousHardware):
     _kind = "aerotech-101smc2"
     traits: List[str] = []
     defaults: Dict[str, Any] = {"baud_rate": 57600}
+    
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
@@ -39,7 +40,7 @@ class Aerotech(ContinuousHardware):
         return state
 
     def _set_position(self, position):
-        self._serial_port.write(f"M {position}\n".encode())
+        self._serial_port.write(f"M {position}\n".encode())        
 
     def close(self):
         self._serial_port.close()
@@ -47,6 +48,11 @@ class Aerotech(ContinuousHardware):
     def direct_serial_write(self, message):
         self._busy = True
         self._serial_port.write(message.encode())
+
+    def home(self):
+        self._busy = True
+        self._serial_port.write(b"H\n")
+        self._destination= 0.0000
 
     async def update_state(self):
         while True:
