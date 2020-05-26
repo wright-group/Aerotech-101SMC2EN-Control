@@ -8,15 +8,15 @@ from yaqd_core import ContinuousHardware, aserial
 
 class Aerotech(ContinuousHardware):
     _kind = "aerotech-101smc2"
-    traits: List[str] = []
+    traits: List[str] = ["uses-uart","uses-serial","is-homeable"]
     defaults: Dict[str, Any] = {"baud_rate": 57600}
-    
+
 
     def __init__(self, name, config, config_filepath):
         super().__init__(name, config, config_filepath)
-        
+
         self._serial_port = aserial.ASerial(config["serial_port"], config["baud_rate"])
-    
+
         # perform other setup, possibly including reads and writes
 
     def _load_state(self, state):
@@ -40,7 +40,7 @@ class Aerotech(ContinuousHardware):
         return state
 
     def _set_position(self, position):
-        self._serial_port.write(f"M {position}\n".encode())        
+        self._serial_port.write(f"M {position}\n".encode())
 
     def close(self):
         self._serial_port.close()
@@ -50,10 +50,20 @@ class Aerotech(ContinuousHardware):
         self._serial_port.write(message.encode())
 
     def home(self):
-        self._busy = True
-        self._serial_port.write(b"H\n")
-        self._destination= 0.0000
+        # Since homing is typically a long process, start a new asynchronous task
+        # This may not be necessary, depending on how your device behaves,
+        # but remember that home is defined as returning to the current destination
+        # This method should return quickly, not wait for the homing to complete.
+        loop = asyncio.get_event_loop()
+        loop.create_task(self._home())
 
+    async def _home(self):
+        self._busy = True
+        # Initiate the home
+        self._serial_port.write(b"H\n")
+        await self._not_busy_sig.wait()
+        self.set_position(self._destination)
+    
     async def update_state(self):
         while True:
             # Perform any updates to internal state
