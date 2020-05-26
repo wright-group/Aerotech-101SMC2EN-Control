@@ -4,7 +4,7 @@ import asyncio
 from typing import Dict, Any, List
 
 from yaqd_core import ContinuousHardware, aserial
-#import time
+import time
 
 class Aerotech(ContinuousHardware):
     _kind = "aerotech-101smc2"
@@ -70,30 +70,11 @@ class Aerotech(ContinuousHardware):
             self._serial_port.write(b"Q\n")
             line = await self._serial_port.areadline()
             self._busy = (line[0] != b"R")
-            #print(line[0])
+            self.logger.debug(line[0])
             if self._busy:
                 await asyncio.sleep(0.1)
-            else:
-                await self._busy_sig.wait()
                 self._serial_port.write(b"G\n")
                 self._position = float(await self._serial_port.areadline())
-
-    '''
-    def update_state(self):
-        while True:
-            # Perform any updates to internal state
-            self._serial_port.write(b"Q\n")
-            #time.sleep(0.1)
-            line = self._serial_port.areadline()
-            self._busy = (line[0] != b"R")
-            #print(line[0])
-            #print(self._busy)
-            
-            if self._busy:
-                await asyncio.sleep(0.5)
             else:
                 await self._busy_sig.wait()
-                self._serial_port.write(b"G\n")
-                self._position = float(await self._serial_port.areadline())   
- 
-    '''        
+
