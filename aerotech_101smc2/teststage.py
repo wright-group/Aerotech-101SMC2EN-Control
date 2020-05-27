@@ -1,7 +1,7 @@
 import serial
 import time
 
-port = serial.Serial("COM12", baudrate=57600)
+port = serial.Serial("COM13", baudrate=57600)
 #port.write(b"H\n")
 #port.write(b"Q\n")
 port.write(b"M 50\n")
