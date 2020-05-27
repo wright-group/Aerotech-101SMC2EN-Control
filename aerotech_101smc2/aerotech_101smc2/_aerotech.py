@@ -71,12 +71,9 @@ class Aerotech(ContinuousHardware):
             line = await self._serial_port.areadline()
             self._busy = (line[0] != b"R")
             self.logger.debug(line[0])
-            #await asyncio.sleep(0.1)
+            self._serial_port.write(b"G\n")
+            self._position = float(await self._serial_port.areadline())
             if self._busy:
-                self._serial_port.write(b"G\n")
-                self._position = float(await self._serial_port.areadline())
-            else:
-                self._serial_port.write(b"G\n")
-                self._position = float(await self._serial_port.areadline())
-                await self._busy_sig.wait()
+                await asyncio.sleep(0.1)
+            
 
