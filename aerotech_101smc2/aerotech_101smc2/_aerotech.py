@@ -50,10 +50,6 @@ class Aerotech(ContinuousHardware):
         self._serial_port.write(message.encode())
 
     def home(self):
-        # Since homing is typically a long process, start a new asynchronous task
-        # This may not be necessary, depending on how your device behaves,
-        # but remember that home is defined as returning to the current destination
-        # This method should return quickly, not wait for the homing to complete.
         loop = asyncio.get_event_loop()
         loop.create_task(self._home())
 
